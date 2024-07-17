@@ -12,27 +12,36 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Box<PasswordRecord> passwordBox;
   late List<PasswordRecord> records;
+  late String filterText = '';
 
   @override
   void initState() {
     super.initState();
     passwordBox = Hive.box<PasswordRecord>('passwordRecords');
     records = passwordBox.values.toList();
-    records.sort((a, b) {
-      int cmp = a.applicationName.compareTo(b.applicationName);
-      if (cmp != 0) return cmp;
-      return a.username.compareTo(b.username);
-    });
+    _applyFilter();
     // Listen to changes in the box
     passwordBox.watch().listen((event) {
       setState(() {
         records = passwordBox.values.toList();
-        records.sort((a, b) {
-          int cmp = a.applicationName.compareTo(b.applicationName);
-          if (cmp != 0) return cmp;
-          return a.username.compareTo(b.username);
-        });
+        _applyFilter();
       });
+    });
+  }
+
+  void _applyFilter() {
+    records = passwordBox.values.toList();
+    if (filterText.isNotEmpty) {
+      records = records
+          .where((record) => record.applicationName
+              .toLowerCase()
+              .contains(filterText.toLowerCase()))
+          .toList();
+    }
+    records.sort((a, b) {
+      int cmp = a.applicationName.compareTo(b.applicationName);
+      if (cmp != 0) return cmp;
+      return a.username.compareTo(b.username);
     });
   }
 
@@ -41,6 +50,36 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Password Warden'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddRecordPage()),
+              );
+            },
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(60.0),
+          child: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search by Application Name',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  filterText = value;
+                  _applyFilter();
+                });
+              },
+            ),
+          ),
+        ),
       ),
       body: _buildListView(),
       floatingActionButton: FloatingActionButton(
