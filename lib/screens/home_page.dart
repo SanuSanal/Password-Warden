@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:password_warden/models/password_record.dart';
 import 'package:password_warden/screens/add_record_page.dart';
+import 'package:password_warden/screens/edit_record_page.dart';
 import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
@@ -35,7 +36,7 @@ class _HomePageState extends State<HomePage> {
       records = records
           .where((record) => record.applicationName
               .toLowerCase()
-              .contains(filterText.toLowerCase()))
+              .startsWith(filterText.toLowerCase()))
           .toList();
     }
     records.sort((a, b) {
@@ -171,7 +172,8 @@ class _HomePageState extends State<HomePage> {
                       Clipboard.setData(ClipboardData(text: entry.value));
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content: Text('${entry.key} copied to clipboard')),
+                            content:
+                                Text('${entry.key} value copied to clipboard')),
                       );
                     },
                   ),
@@ -179,6 +181,23 @@ class _HomePageState extends State<HomePage> {
               }).toList(),
             ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EditRecordPage(record: record)),
+                );
+              },
+              child: Text('Edit'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Close'),
+            ),
+          ],
         );
       },
     );

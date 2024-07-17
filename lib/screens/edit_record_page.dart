@@ -2,31 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:password_warden/models/password_record.dart';
 
-class AddRecordPage extends StatefulWidget {
+class EditRecordPage extends StatefulWidget {
+  final PasswordRecord record;
+
+  EditRecordPage({required this.record});
+
   @override
-  _AddRecordPageState createState() => _AddRecordPageState();
+  _EditRecordPageState createState() => _EditRecordPageState();
 }
 
-class _AddRecordPageState extends State<AddRecordPage> {
+class _EditRecordPageState extends State<EditRecordPage> {
   final _formKey = GlobalKey<FormState>();
-  String applicationName = '';
-  String username = '';
-  String password = '';
+  late String applicationName;
+  late String username;
+  late String password;
   Map<String, String> additionalInfo = {};
+
+  @override
+  void initState() {
+    super.initState();
+    applicationName = widget.record.applicationName;
+    username = widget.record.username;
+    password = widget.record.password;
+    additionalInfo = Map<String, String>.from(widget.record.additionalInfo);
+  }
 
   void _saveRecord() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      final newRecord = PasswordRecord(
+      final updatedRecord = PasswordRecord(
         applicationName: applicationName,
         username: username,
         password: password,
         additionalInfo: additionalInfo,
       );
-      Hive.box<PasswordRecord>('passwordRecords').add(newRecord);
+      Hive.box<PasswordRecord>('passwordRecords')
+          .put(widget.record.key, updatedRecord);
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Record added')),
+        SnackBar(content: Text('Record updated')),
       );
     }
   }
@@ -41,7 +55,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Record'),
+        title: Text('Edit Record'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -50,6 +64,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
           child: ListView(
             children: [
               TextFormField(
+                initialValue: applicationName,
                 decoration: InputDecoration(labelText: 'Application Name'),
                 onSaved: (value) => applicationName = value!,
                 validator: (value) {
@@ -60,6 +75,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                 },
               ),
               TextFormField(
+                initialValue: username,
                 decoration: InputDecoration(labelText: 'Username'),
                 onSaved: (value) => username = value!,
                 validator: (value) {
@@ -70,6 +86,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                 },
               ),
               TextFormField(
+                initialValue: password,
                 decoration: InputDecoration(labelText: 'Password'),
                 obscureText: true,
                 onSaved: (value) => password = value!,
