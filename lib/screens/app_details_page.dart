@@ -3,9 +3,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class AppDetailsPage extends StatelessWidget {
   void _launchURL() async {
-    const url = 'https://github.com/SanuSanal/Password-Warden';
-    if (await canLaunch(url)) {
-      await launch(url, forceSafariVC: false, forceWebView: false);
+    Uri url = Uri.parse('https://github.com/SanuSanal/Password-Warden');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
     } else {
       throw 'Could not launch $url';
     }
