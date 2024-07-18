@@ -14,6 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
+  final TextEditingController _searchController = TextEditingController();
   late Box<PasswordRecord> passwordBox;
   List<PasswordRecord> records = [];
   String filterText = '';
@@ -23,6 +24,9 @@ class HomePageState extends State<HomePage> {
     super.initState();
     passwordBox = Hive.box<PasswordRecord>('passwordRecords');
     _applyFilter();
+    _searchController.addListener(() {
+      setState(() {});
+    });
   }
 
   void _applyFilter() {
@@ -218,10 +222,23 @@ class HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
-              decoration: const InputDecoration(
+              controller: _searchController,
+              decoration: InputDecoration(
                 hintText: 'Search by Application Name',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.search),
+                border: const OutlineInputBorder(),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() {
+                            _searchController.clear();
+                            filterText = '';
+                            _applyFilter();
+                          });
+                        },
+                      )
+                    : null,
               ),
               onChanged: (value) {
                 setState(() {
@@ -249,7 +266,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  _toCamelCase(String input) {
+  String _toCamelCase(String input) {
     if (input.isEmpty) {
       return '';
     }
@@ -270,5 +287,11 @@ class HomePageState extends State<HomePage> {
     }).join(' ');
 
     return camelCaseString;
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 }
