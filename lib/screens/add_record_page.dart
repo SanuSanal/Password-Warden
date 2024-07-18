@@ -3,11 +3,13 @@ import 'package:hive/hive.dart';
 import 'package:password_warden/models/password_record.dart';
 
 class AddRecordPage extends StatefulWidget {
+  const AddRecordPage({super.key});
+
   @override
-  _AddRecordPageState createState() => _AddRecordPageState();
+  AddRecordPageState createState() => AddRecordPageState();
 }
 
-class _AddRecordPageState extends State<AddRecordPage> {
+class AddRecordPageState extends State<AddRecordPage> {
   final _formKey = GlobalKey<FormState>();
   String applicationName = '';
   String username = '';
@@ -26,7 +28,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
       Hive.box<PasswordRecord>('passwordRecords').add(newRecord);
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Record added')),
+        const SnackBar(content: Text('Record added')),
       );
     }
   }
@@ -41,7 +43,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Record'),
+        title: const Text('Add Record'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -50,7 +52,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
           child: ListView(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Application Name'),
+                decoration:
+                    const InputDecoration(labelText: 'Application Name'),
                 onSaved: (value) => applicationName = value!,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -60,7 +63,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Username'),
+                decoration: const InputDecoration(labelText: 'Username'),
                 onSaved: (value) => username = value!,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -70,7 +73,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Password'),
+                decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
                 onSaved: (value) => password = value!,
                 validator: (value) {
@@ -86,7 +89,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                     Expanded(
                       child: TextFormField(
                         initialValue: entry.key,
-                        decoration: InputDecoration(labelText: 'Key'),
+                        decoration: const InputDecoration(labelText: 'Key'),
                         onChanged: (value) {
                           setState(() {
                             additionalInfo.remove(entry.key);
@@ -98,7 +101,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                     Expanded(
                       child: TextFormField(
                         initialValue: entry.value,
-                        decoration: InputDecoration(labelText: 'Value'),
+                        decoration: const InputDecoration(labelText: 'Value'),
                         onChanged: (value) {
                           setState(() {
                             additionalInfo[entry.key] = value;
@@ -107,7 +110,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.delete),
+                      icon: const Icon(Icons.delete),
                       onPressed: () {
                         setState(() {
                           additionalInfo.remove(entry.key);
@@ -116,15 +119,15 @@ class _AddRecordPageState extends State<AddRecordPage> {
                     ),
                   ],
                 );
-              }).toList(),
+              }),
               ElevatedButton(
                 onPressed: _addKeyValuePair,
-                child: Text('Add Key-Value Pair'),
+                child: const Text('Add Key-Value Pair'),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _saveRecord,
-                child: Text('Save'),
+                child: const Text('Save'),
               ),
             ],
           ),

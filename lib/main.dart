@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:password_warden/models/password_record.dart';
 import 'package:password_warden/screens/home_page.dart';
@@ -11,7 +10,7 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(PasswordRecordAdapter());
 
-  final FlutterSecureStorage secureStorage = FlutterSecureStorage();
+  const FlutterSecureStorage secureStorage = FlutterSecureStorage();
   const String encryptionKey = 'encryptionKey';
   String? encryptedKey = await secureStorage.read(key: encryptionKey);
 
@@ -29,10 +28,12 @@ void main() async {
     encryptionCipher: HiveAesCipher(encryptionKeyBytes),
   );
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,17 +41,19 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SplashScreen(),
+      home: const SplashScreen(),
     );
   }
 }
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
@@ -58,17 +61,19 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _navigateToNextScreen() async {
-    await Future.delayed(Duration(seconds: 3), () {});
+    await Future.delayed(const Duration(seconds: 3), () {});
     final AuthService authService = AuthService();
     bool isAuthenticated = await authService.authenticate();
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            isAuthenticated ? HomePage() : AuthenticationFailedPage(),
-      ),
-    );
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => isAuthenticated
+              ? const HomePage()
+              : const AuthenticationFailedPage(),
+        ),
+      );
+    }
   }
 
   @override
@@ -82,8 +87,8 @@ class _SplashScreenState extends State<SplashScreen> {
               'assets/logo.png', // Ensure you have the logo image in the assets directory
               height: 100.0,
             ),
-            SizedBox(height: 20.0),
-            Text(
+            const SizedBox(height: 20.0),
+            const Text(
               'PassWarden',
               style: TextStyle(
                 fontSize: 24.0,
@@ -98,11 +103,13 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 class AuthenticationFailedPage extends StatelessWidget {
+  const AuthenticationFailedPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Authentication Failed')),
-      body: Center(
+      appBar: AppBar(title: const Text('Authentication Failed')),
+      body: const Center(
           child: Text(
               'Authentication failed. Please restart the app to try again.')),
     );

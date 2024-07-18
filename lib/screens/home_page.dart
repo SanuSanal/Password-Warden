@@ -7,11 +7,13 @@ import 'package:password_warden/screens/app_details_page.dart';
 import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   late Box<PasswordRecord> passwordBox;
   List<PasswordRecord> records = [];
   String filterText = '';
@@ -34,9 +36,11 @@ class _HomePageState extends State<HomePage> {
             .toList();
       }
       records.sort((a, b) {
-        int cmp = a.applicationName.compareTo(b.applicationName);
+        int cmp = a.applicationName
+            .toLowerCase()
+            .compareTo(b.applicationName.toLowerCase());
         if (cmp != 0) return cmp;
-        return a.username.compareTo(b.username);
+        return a.username.toLowerCase().compareTo(b.username.toLowerCase());
       });
     });
   }
@@ -52,27 +56,29 @@ class _HomePageState extends State<HomePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  title: Text('Username'),
+                  title: const Text('Username'),
                   subtitle: Text(record.username),
                   trailing: IconButton(
-                    icon: Icon(Icons.copy),
+                    icon: const Icon(Icons.copy),
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: record.username));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Username copied to clipboard')),
+                        const SnackBar(
+                            content: Text('Username copied to clipboard')),
                       );
                     },
                   ),
                 ),
                 ListTile(
-                  title: Text('Password'),
+                  title: const Text('Password'),
                   subtitle: Text(record.password),
                   trailing: IconButton(
-                    icon: Icon(Icons.copy),
+                    icon: const Icon(Icons.copy),
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: record.password));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Password copied to clipboard')),
+                        const SnackBar(
+                            content: Text('Password copied to clipboard')),
                       );
                     },
                   ),
@@ -82,7 +88,7 @@ class _HomePageState extends State<HomePage> {
                     title: Text(entry.key),
                     subtitle: Text(entry.value),
                     trailing: IconButton(
-                      icon: Icon(Icons.copy),
+                      icon: const Icon(Icons.copy),
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: entry.value));
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -93,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),
@@ -107,11 +113,11 @@ class _HomePageState extends State<HomePage> {
                       builder: (context) => EditRecordPage(record: record)),
                 ).then((value) => _applyFilter()); // Refresh list after editing
               },
-              child: Text('Edit'),
+              child: const Text('Edit'),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Close'),
+              child: const Text('Close'),
             ),
           ],
         );
@@ -124,16 +130,16 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Confirm Delete'),
-          content: Text('Are you sure you want to delete all records?'),
+          title: const Text('Confirm Delete'),
+          content: const Text('Are you sure you want to delete all records?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: Text('Delete'),
+              child: const Text('Delete'),
             ),
           ],
         );
@@ -145,9 +151,11 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         _applyFilter();
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('All records deleted')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('All records deleted')),
+        );
+      }
     }
   }
 
@@ -161,7 +169,7 @@ class _HomePageState extends State<HomePage> {
           subtitle: Text(record.username),
           onTap: () => showRecordDialog(context, record),
           trailing: IconButton(
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             onPressed: () {
               passwordBox.delete(record.key);
               setState(() {
@@ -178,7 +186,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Password Warden'),
+        title: const Text('Password Warden'),
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
@@ -187,16 +195,17 @@ class _HomePageState extends State<HomePage> {
               } else if (value == 'App Details') {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AppDetailsPage()),
+                  MaterialPageRoute(
+                      builder: (context) => const AppDetailsPage()),
                 );
               }
             },
             itemBuilder: (context) => [
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'Delete All',
                 child: Text('Delete All Records'),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'App Details',
                 child: Text('App Details'),
               ),
@@ -209,7 +218,7 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Search by Application Name',
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
@@ -231,11 +240,11 @@ class _HomePageState extends State<HomePage> {
         onPressed: () async {
           await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddRecordPage()),
+            MaterialPageRoute(builder: (context) => const AddRecordPage()),
           );
           _applyFilter(); // Refresh list after adding a new record
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }

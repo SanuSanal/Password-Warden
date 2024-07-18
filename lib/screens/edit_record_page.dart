@@ -5,13 +5,13 @@ import 'package:password_warden/models/password_record.dart';
 class EditRecordPage extends StatefulWidget {
   final PasswordRecord record;
 
-  EditRecordPage({required this.record});
+  const EditRecordPage({super.key, required this.record});
 
   @override
-  _EditRecordPageState createState() => _EditRecordPageState();
+  EditRecordPageState createState() => EditRecordPageState();
 }
 
-class _EditRecordPageState extends State<EditRecordPage> {
+class EditRecordPageState extends State<EditRecordPage> {
   final _formKey = GlobalKey<FormState>();
   late String applicationName;
   late String username;
@@ -40,7 +40,7 @@ class _EditRecordPageState extends State<EditRecordPage> {
           .put(widget.record.key, updatedRecord);
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Record updated')),
+        const SnackBar(content: Text('Record updated')),
       );
     }
   }
@@ -55,7 +55,7 @@ class _EditRecordPageState extends State<EditRecordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Record'),
+        title: const Text('Edit Record'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -65,7 +65,8 @@ class _EditRecordPageState extends State<EditRecordPage> {
             children: [
               TextFormField(
                 initialValue: applicationName,
-                decoration: InputDecoration(labelText: 'Application Name'),
+                decoration:
+                    const InputDecoration(labelText: 'Application Name'),
                 onSaved: (value) => applicationName = value!,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -76,7 +77,7 @@ class _EditRecordPageState extends State<EditRecordPage> {
               ),
               TextFormField(
                 initialValue: username,
-                decoration: InputDecoration(labelText: 'Username'),
+                decoration: const InputDecoration(labelText: 'Username'),
                 onSaved: (value) => username = value!,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -87,7 +88,7 @@ class _EditRecordPageState extends State<EditRecordPage> {
               ),
               TextFormField(
                 initialValue: password,
-                decoration: InputDecoration(labelText: 'Password'),
+                decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
                 onSaved: (value) => password = value!,
                 validator: (value) {
@@ -103,7 +104,7 @@ class _EditRecordPageState extends State<EditRecordPage> {
                     Expanded(
                       child: TextFormField(
                         initialValue: entry.key,
-                        decoration: InputDecoration(labelText: 'Key'),
+                        decoration: const InputDecoration(labelText: 'Key'),
                         onChanged: (value) {
                           setState(() {
                             additionalInfo.remove(entry.key);
@@ -115,7 +116,7 @@ class _EditRecordPageState extends State<EditRecordPage> {
                     Expanded(
                       child: TextFormField(
                         initialValue: entry.value,
-                        decoration: InputDecoration(labelText: 'Value'),
+                        decoration: const InputDecoration(labelText: 'Value'),
                         onChanged: (value) {
                           setState(() {
                             additionalInfo[entry.key] = value;
@@ -124,7 +125,7 @@ class _EditRecordPageState extends State<EditRecordPage> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.delete),
+                      icon: const Icon(Icons.delete),
                       onPressed: () {
                         setState(() {
                           additionalInfo.remove(entry.key);
@@ -133,15 +134,15 @@ class _EditRecordPageState extends State<EditRecordPage> {
                     ),
                   ],
                 );
-              }).toList(),
+              }),
               ElevatedButton(
                 onPressed: _addKeyValuePair,
-                child: Text('Add Key-Value Pair'),
+                child: const Text('Add Key-Value Pair'),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _saveRecord,
-                child: Text('Save'),
+                child: const Text('Save'),
               ),
             ],
           ),
