@@ -28,17 +28,11 @@ void main() async {
     'passwordRecords',
     encryptionCipher: HiveAesCipher(encryptionKeyBytes),
   );
-  final AuthService authService = AuthService();
-  bool isAuthenticated = await authService.authenticate();
 
-  runApp(MyApp(isAuthenticated: isAuthenticated));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final bool isAuthenticated;
-
-  const MyApp({Key? key, required this.isAuthenticated}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -46,7 +40,59 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: isAuthenticated ? HomePage() : AuthenticationFailedPage(),
+      home: SplashScreen(),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _navigateToNextScreen();
+  }
+
+  _navigateToNextScreen() async {
+    await Future.delayed(Duration(seconds: 3), () {});
+    final AuthService authService = AuthService();
+    bool isAuthenticated = await authService.authenticate();
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            isAuthenticated ? HomePage() : AuthenticationFailedPage(),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image.asset(
+              'assets/logo.png', // Ensure you have the logo image in the assets directory
+              height: 100.0,
+            ),
+            SizedBox(height: 20.0),
+            Text(
+              'PassWarden',
+              style: TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
