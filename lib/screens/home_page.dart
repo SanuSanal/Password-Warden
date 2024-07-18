@@ -94,7 +94,7 @@ class HomePageState extends State<HomePage> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                               content: Text(
-                                  '${entry.key} value copied to clipboard')),
+                                  '${_toCamelCase(entry.key)} copied to clipboard')),
                         );
                       },
                     ),
@@ -247,5 +247,28 @@ class HomePageState extends State<HomePage> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  _toCamelCase(String input) {
+    if (input.isEmpty) {
+      return '';
+    }
+
+    // Split the input string by spaces or underscores
+    List<String> words = input.split(RegExp(r'\s+|_'));
+
+    // Capitalize the first word and join with the rest capitalized
+    String camelCaseString = words.map((word) {
+      if (word.isEmpty) {
+        return '';
+      }
+      if (word.length == 1) {
+        return word.toUpperCase(); // Handles single-character words like 'a'
+      }
+      return word.substring(0, 1).toUpperCase() +
+          word.substring(1).toLowerCase();
+    }).join(' ');
+
+    return camelCaseString;
   }
 }
