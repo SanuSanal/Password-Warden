@@ -47,53 +47,55 @@ class _HomePageState extends State<HomePage> {
       builder: (context) {
         return AlertDialog(
           title: Text(record.applicationName),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text('Username'),
-                subtitle: Text(record.username),
-                trailing: IconButton(
-                  icon: Icon(Icons.copy),
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: record.username));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Username copied to clipboard')),
-                    );
-                  },
-                ),
-              ),
-              ListTile(
-                title: Text('Password'),
-                subtitle: Text(record.password),
-                trailing: IconButton(
-                  icon: Icon(Icons.copy),
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: record.password));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Password copied to clipboard')),
-                    );
-                  },
-                ),
-              ),
-              ...record.additionalInfo.entries.map((entry) {
-                return ListTile(
-                  title: Text(entry.key),
-                  subtitle: Text(entry.value),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  title: Text('Username'),
+                  subtitle: Text(record.username),
                   trailing: IconButton(
                     icon: Icon(Icons.copy),
                     onPressed: () {
-                      Clipboard.setData(ClipboardData(text: entry.value));
+                      Clipboard.setData(ClipboardData(text: record.username));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content:
-                                Text('${entry.key} value copied to clipboard')),
+                        SnackBar(content: Text('Username copied to clipboard')),
                       );
                     },
                   ),
-                );
-              }).toList(),
-            ],
+                ),
+                ListTile(
+                  title: Text('Password'),
+                  subtitle: Text(record.password),
+                  trailing: IconButton(
+                    icon: Icon(Icons.copy),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: record.password));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Password copied to clipboard')),
+                      );
+                    },
+                  ),
+                ),
+                ...record.additionalInfo.entries.map((entry) {
+                  return ListTile(
+                    title: Text(entry.key),
+                    subtitle: Text(entry.value),
+                    trailing: IconButton(
+                      icon: Icon(Icons.copy),
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: entry.value));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  '${entry.key} value copied to clipboard')),
+                        );
+                      },
+                    ),
+                  );
+                }).toList(),
+              ],
+            ),
           ),
           actions: [
             TextButton(
