@@ -18,6 +18,10 @@ class EditRecordPageState extends State<EditRecordPage> {
   late String password;
   Map<String, String> additionalInfo = {};
 
+  final _editApplicationNameFocusNode = FocusNode();
+  final _editUsernameFocusNode = FocusNode();
+  final _editPasswordFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -25,6 +29,14 @@ class EditRecordPageState extends State<EditRecordPage> {
     username = widget.record.username;
     password = widget.record.password;
     additionalInfo = Map<String, String>.from(widget.record.additionalInfo);
+  }
+
+  @override
+  void dispose() {
+    _editApplicationNameFocusNode.dispose();
+    _editUsernameFocusNode.dispose();
+    _editPasswordFocusNode.dispose();
+    super.dispose();
   }
 
   void _saveRecord() {
@@ -65,6 +77,7 @@ class EditRecordPageState extends State<EditRecordPage> {
             children: [
               TextFormField(
                 initialValue: applicationName,
+                focusNode: _editApplicationNameFocusNode,
                 decoration:
                     const InputDecoration(labelText: 'Application Name'),
                 onSaved: (value) => applicationName = value!,
@@ -74,9 +87,13 @@ class EditRecordPageState extends State<EditRecordPage> {
                   }
                   return null;
                 },
+                onFieldSubmitted: (_) {
+                  FocusScope.of(context).requestFocus(_editUsernameFocusNode);
+                },
               ),
               TextFormField(
                 initialValue: username,
+                focusNode: _editUsernameFocusNode,
                 decoration: const InputDecoration(labelText: 'Username'),
                 onSaved: (value) => username = value!,
                 validator: (value) {
@@ -85,9 +102,13 @@ class EditRecordPageState extends State<EditRecordPage> {
                   }
                   return null;
                 },
+                onFieldSubmitted: (_) {
+                  FocusScope.of(context).requestFocus(_editPasswordFocusNode);
+                },
               ),
               TextFormField(
                 initialValue: password,
+                focusNode: _editPasswordFocusNode,
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
                 onSaved: (value) => password = value!,

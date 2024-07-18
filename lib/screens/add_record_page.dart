@@ -16,6 +16,18 @@ class AddRecordPageState extends State<AddRecordPage> {
   String password = '';
   Map<String, String> additionalInfo = {};
 
+  final _applicationNameFocusNode = FocusNode();
+  final _usernameFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _applicationNameFocusNode.dispose();
+    _usernameFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
+
   void _saveRecord() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -52,6 +64,7 @@ class AddRecordPageState extends State<AddRecordPage> {
           child: ListView(
             children: [
               TextFormField(
+                focusNode: _applicationNameFocusNode,
                 decoration:
                     const InputDecoration(labelText: 'Application Name'),
                 onSaved: (value) => applicationName = value!,
@@ -61,8 +74,12 @@ class AddRecordPageState extends State<AddRecordPage> {
                   }
                   return null;
                 },
+                onFieldSubmitted: (_) {
+                  FocusScope.of(context).requestFocus(_usernameFocusNode);
+                },
               ),
               TextFormField(
+                focusNode: _usernameFocusNode,
                 decoration: const InputDecoration(labelText: 'Username'),
                 onSaved: (value) => username = value!,
                 validator: (value) {
@@ -71,8 +88,12 @@ class AddRecordPageState extends State<AddRecordPage> {
                   }
                   return null;
                 },
+                onFieldSubmitted: (_) {
+                  FocusScope.of(context).requestFocus(_passwordFocusNode);
+                },
               ),
               TextFormField(
+                focusNode: _passwordFocusNode,
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
                 onSaved: (value) => password = value!,
