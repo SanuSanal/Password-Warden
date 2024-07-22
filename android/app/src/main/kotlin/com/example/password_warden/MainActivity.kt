@@ -1,4 +1,4 @@
-package com.example.password_warden
+package com.itsumi.password_warden
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

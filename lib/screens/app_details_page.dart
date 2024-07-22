@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppDetailsPage extends StatelessWidget {
@@ -9,7 +10,14 @@ class AppDetailsPage extends StatelessWidget {
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
-      throw 'Could not launch $url';
+      Fluttertoast.showToast(
+          msg: "Could not open repository",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
     }
   }
 
@@ -53,13 +61,15 @@ class AppDetailsPage extends StatelessWidget {
               'This app was created by Sanal with the help of ChatGPT.',
             ),
             const SizedBox(height: 20),
-            GestureDetector(
-              onTap: _launchURL,
-              child: const Text(
-                'GitHub Repository',
-                style: TextStyle(
-                    color: Colors.blue, decoration: TextDecoration.underline),
+            ElevatedButton(
+              onPressed: _launchURL,
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
+              child: const Text(
+                  'GitHub Repository: https://github.com/SanuSanal/Password-Warden'),
             ),
           ],
         ),

@@ -53,13 +53,23 @@ class HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text(record.applicationName),
-          content: SingleChildScrollView(
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  record.applicationName,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 16),
                 ListTile(
+                  contentPadding: EdgeInsets.zero,
                   title: const Text('Username'),
                   subtitle: Text(record.username),
                   trailing: IconButton(
@@ -74,6 +84,7 @@ class HomePageState extends State<HomePage> {
                   ),
                 ),
                 ListTile(
+                  contentPadding: EdgeInsets.zero,
                   title: const Text('Password'),
                   subtitle: Text(record.password),
                   trailing: IconButton(
@@ -89,6 +100,7 @@ class HomePageState extends State<HomePage> {
                 ),
                 ...record.additionalInfo.entries.map((entry) {
                   return ListTile(
+                    contentPadding: EdgeInsets.zero,
                     title: Text(entry.key),
                     subtitle: Text(entry.value),
                     trailing: IconButton(
@@ -104,26 +116,43 @@ class HomePageState extends State<HomePage> {
                     ),
                   );
                 }),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  EditRecordPage(record: record)),
+                        ).then((value) =>
+                            _applyFilter()); // Refresh list after editing
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Edit'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Close'),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => EditRecordPage(record: record)),
-                ).then((value) => _applyFilter()); // Refresh list after editing
-              },
-              child: const Text('Edit'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
         );
       },
     );
@@ -168,18 +197,24 @@ class HomePageState extends State<HomePage> {
       itemCount: records.length,
       itemBuilder: (context, index) {
         final record = records[index];
-        return ListTile(
-          title: Text(record.applicationName),
-          subtitle: Text(record.username),
-          onTap: () => showRecordDialog(context, record),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              passwordBox.delete(record.key);
-              setState(() {
-                _applyFilter();
-              });
-            },
+        return Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: ListTile(
+            title: Text(record.applicationName),
+            subtitle: Text(record.username),
+            onTap: () => showRecordDialog(context, record),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () {
+                passwordBox.delete(record.key);
+                setState(() {
+                  _applyFilter();
+                });
+              },
+            ),
           ),
         );
       },
@@ -225,8 +260,15 @@ class HomePageState extends State<HomePage> {
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search by Application Name',
-                prefixIcon: const Icon(Icons.search),
-                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.search, color: Colors.teal),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Colors.teal),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Colors.teal),
+                ),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
@@ -261,6 +303,7 @@ class HomePageState extends State<HomePage> {
           );
           _applyFilter(); // Refresh list after adding a new record
         },
+        backgroundColor: Colors.teal,
         child: const Icon(Icons.add),
       ),
     );
