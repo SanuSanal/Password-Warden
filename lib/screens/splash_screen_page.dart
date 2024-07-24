@@ -41,7 +41,7 @@ class SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Image.asset(
-              'assets/logo.png', // Ensure you have the logo image in the assets directory
+              'assets/logo.png',
               height: 100.0,
             ),
             const SizedBox(height: 20.0),
