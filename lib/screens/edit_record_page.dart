@@ -16,7 +16,7 @@ class EditRecordPageState extends State<EditRecordPage> {
   late String applicationName;
   late String username;
   late String password;
-  Map<String, String> additionalInfo = {};
+  Map<int, String> tempAdditionalInfo = {};
 
   final _editApplicationNameFocusNode = FocusNode();
   final _editUsernameFocusNode = FocusNode();
@@ -28,7 +28,9 @@ class EditRecordPageState extends State<EditRecordPage> {
     applicationName = widget.record.applicationName;
     username = widget.record.username;
     password = widget.record.password;
-    additionalInfo = Map<String, String>.from(widget.record.additionalInfo);
+    widget.record.additionalInfo.forEach((key, value) {
+      tempAdditionalInfo[tempAdditionalInfo.length] = '$key:$value';
+    });
   }
 
   @override
@@ -41,6 +43,26 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   void _saveRecord() {
     if (_formKey.currentState!.validate()) {
+      // Validate keys in tempAdditionalInfo
+      Set<String> keysSet = {};
+      for (var entry in tempAdditionalInfo.values) {
+        String key = entry.split(':')[0];
+        if (keysSet.contains(key)) {
+          // Show error: Duplicate key found
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Duplicate key found: $key')),
+          );
+          return;
+        }
+        keysSet.add(key);
+      }
+
+      // No duplicates, proceed with saving
+      Map<String, String> additionalInfo = {};
+      for (var entry in tempAdditionalInfo.values) {
+        List<String> keyValue = entry.split(':');
+        additionalInfo[keyValue[0]] = keyValue[1];
+      }
       _formKey.currentState!.save();
       final updatedRecord = PasswordRecord(
         applicationName: applicationName.trim(),
@@ -59,7 +81,7 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   void _addKeyValuePair() {
     setState(() {
-      additionalInfo[''] = '';
+      tempAdditionalInfo[tempAdditionalInfo.length] = ':';
     });
   }
 
@@ -166,7 +188,10 @@ class EditRecordPageState extends State<EditRecordPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              ...additionalInfo.entries.map((entry) {
+              ...tempAdditionalInfo.entries.map((entry) {
+                int index = entry.key;
+                String key = entry.value.split(':')[0];
+                String value = entry.value.split(':')[1];
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
@@ -179,7 +204,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
-                            initialValue: entry.key,
+                            initialValue: key,
                             decoration: InputDecoration(
                               labelText: 'Key',
                               labelStyle: const TextStyle(color: Colors.teal),
@@ -192,10 +217,10 @@ class EditRecordPageState extends State<EditRecordPage> {
                                     const BorderSide(color: Colors.teal),
                               ),
                             ),
-                            onChanged: (value) {
+                            onChanged: (keyValue) {
                               setState(() {
-                                additionalInfo.remove(entry.key);
-                                additionalInfo[value.trim()] = entry.value;
+                                tempAdditionalInfo[index] =
+                                    '${keyValue.trim()}:$value';
                               });
                             },
                             validator: (value) {
@@ -212,7 +237,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
-                            initialValue: entry.value,
+                            initialValue: value,
                             decoration: InputDecoration(
                               labelText: 'Value',
                               labelStyle: const TextStyle(color: Colors.teal),
@@ -227,7 +252,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                             ),
                             onChanged: (value) {
                               setState(() {
-                                additionalInfo[entry.key] = value.trim();
+                                tempAdditionalInfo[index] =
+                                    '$key:${value.trim()}';
                               });
                             },
                             validator: (value) {
@@ -244,7 +270,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                         color: Colors.red,
                         onPressed: () {
                           setState(() {
-                            additionalInfo.remove(entry.key);
+                            tempAdditionalInfo.remove(index);
                           });
                         },
                       ),

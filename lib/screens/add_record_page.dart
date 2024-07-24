@@ -14,7 +14,7 @@ class AddRecordPageState extends State<AddRecordPage> {
   String applicationName = '';
   String username = '';
   String password = '';
-  Map<String, String> additionalInfo = {};
+  Map<int, String> tempAdditionalInfo = {};
 
   final _applicationNameFocusNode = FocusNode();
   final _usernameFocusNode = FocusNode();
@@ -30,6 +30,26 @@ class AddRecordPageState extends State<AddRecordPage> {
 
   void _saveRecord() {
     if (_formKey.currentState!.validate()) {
+      // Validate keys in tempAdditionalInfo
+      Set<String> keysSet = {};
+      for (var entry in tempAdditionalInfo.values) {
+        String key = entry.split(':')[0];
+        if (keysSet.contains(key)) {
+          // Show error: Duplicate key found
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Duplicate key found: $key')),
+          );
+          return;
+        }
+        keysSet.add(key);
+      }
+
+      // No duplicates, proceed with saving
+      Map<String, String> additionalInfo = {};
+      for (var entry in tempAdditionalInfo.values) {
+        List<String> keyValue = entry.split(':');
+        additionalInfo[keyValue[0]] = keyValue[1];
+      }
       _formKey.currentState!.save();
       final newRecord = PasswordRecord(
         applicationName: applicationName.trim(),
@@ -47,7 +67,7 @@ class AddRecordPageState extends State<AddRecordPage> {
 
   void _addKeyValuePair() {
     setState(() {
-      additionalInfo[''] = '';
+      tempAdditionalInfo[tempAdditionalInfo.length] = ':';
     });
   }
 
@@ -85,7 +105,9 @@ class AddRecordPageState extends State<AddRecordPage> {
                             borderSide: const BorderSide(color: Colors.teal),
                           ),
                         ),
-                        onSaved: (value) => applicationName = value!,
+                        onSaved: (value) {
+                          applicationName = value!;
+                        },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter an application name';
@@ -151,7 +173,10 @@ class AddRecordPageState extends State<AddRecordPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              ...additionalInfo.entries.map((entry) {
+              ...tempAdditionalInfo.entries.map((entry) {
+                int index = entry.key;
+                String key = entry.value.split(':')[0];
+                String value = entry.value.split(':')[1];
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
@@ -164,7 +189,7 @@ class AddRecordPageState extends State<AddRecordPage> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
-                            initialValue: entry.key,
+                            initialValue: key,
                             decoration: InputDecoration(
                               labelText: 'Key',
                               labelStyle: const TextStyle(color: Colors.teal),
@@ -177,10 +202,10 @@ class AddRecordPageState extends State<AddRecordPage> {
                                     const BorderSide(color: Colors.teal),
                               ),
                             ),
-                            onChanged: (value) {
+                            onChanged: (keyValue) {
                               setState(() {
-                                additionalInfo.remove(entry.key);
-                                additionalInfo[value.trim()] = entry.value;
+                                tempAdditionalInfo[index] =
+                                    '${keyValue.trim()}:$value';
                               });
                             },
                             validator: (value) {
@@ -197,7 +222,7 @@ class AddRecordPageState extends State<AddRecordPage> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
-                            initialValue: entry.value,
+                            initialValue: value,
                             decoration: InputDecoration(
                               labelText: 'Value',
                               labelStyle: const TextStyle(color: Colors.teal),
@@ -212,7 +237,8 @@ class AddRecordPageState extends State<AddRecordPage> {
                             ),
                             onChanged: (value) {
                               setState(() {
-                                additionalInfo[entry.key] = value.trim();
+                                tempAdditionalInfo[index] =
+                                    '$key:${value.trim()}';
                               });
                             },
                             validator: (value) {
@@ -229,7 +255,7 @@ class AddRecordPageState extends State<AddRecordPage> {
                         color: Colors.red,
                         onPressed: () {
                           setState(() {
-                            additionalInfo.remove(entry.key);
+                            tempAdditionalInfo.remove(index);
                           });
                         },
                       ),
