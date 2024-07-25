@@ -17,6 +17,9 @@ class EditRecordPageState extends State<EditRecordPage> {
   late String username;
   late String password;
   Map<int, String> tempAdditionalInfo = {};
+  int keyIndex = 0;
+  final Map<int, FocusNode> _additionalKeysFocusNodes = {};
+  final Map<int, FocusNode> _additionalValuesFocusNodes = {};
 
   final _editApplicationNameFocusNode = FocusNode();
   final _editUsernameFocusNode = FocusNode();
@@ -29,7 +32,8 @@ class EditRecordPageState extends State<EditRecordPage> {
     username = widget.record.username;
     password = widget.record.password;
     widget.record.additionalInfo.forEach((key, value) {
-      tempAdditionalInfo[tempAdditionalInfo.length] = '$key:$value';
+      tempAdditionalInfo[keyIndex] = '$key:$value';
+      keyIndex++;
     });
   }
 
@@ -38,6 +42,12 @@ class EditRecordPageState extends State<EditRecordPage> {
     _editApplicationNameFocusNode.dispose();
     _editUsernameFocusNode.dispose();
     _editPasswordFocusNode.dispose();
+    for (var keyFocusNode in _additionalKeysFocusNodes.values) {
+      keyFocusNode.dispose();
+    }
+    for (var valueFocusNode in _additionalValuesFocusNodes.values) {
+      valueFocusNode.dispose();
+    }
     super.dispose();
   }
 
@@ -81,7 +91,12 @@ class EditRecordPageState extends State<EditRecordPage> {
 
   void _addKeyValuePair() {
     setState(() {
-      tempAdditionalInfo[tempAdditionalInfo.length] = ':';
+      tempAdditionalInfo[keyIndex] = ':';
+      var keyFocusNode = FocusNode();
+      _additionalKeysFocusNodes[keyIndex] = keyFocusNode;
+      var valueFocusNode = FocusNode();
+      _additionalValuesFocusNodes[keyIndex] = valueFocusNode;
+      keyIndex++;
     });
   }
 
@@ -182,6 +197,12 @@ class EditRecordPageState extends State<EditRecordPage> {
                           }
                           return null;
                         },
+                        onFieldSubmitted: (_) {
+                          if (_additionalKeysFocusNodes.isNotEmpty) {
+                            FocusScope.of(context).requestFocus(
+                                _additionalKeysFocusNodes.values.first);
+                          }
+                        },
                       ),
                     ],
                   ),
@@ -192,6 +213,8 @@ class EditRecordPageState extends State<EditRecordPage> {
                 int index = entry.key;
                 String key = entry.value.split(':')[0];
                 String value = entry.value.split(':')[1];
+                var keyFocusNode = _additionalKeysFocusNodes[index];
+                var valueFocusNode = _additionalValuesFocusNodes[index];
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
@@ -205,6 +228,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             initialValue: key,
+                            focusNode: keyFocusNode,
                             decoration: InputDecoration(
                               labelText: 'Key',
                               labelStyle: const TextStyle(color: Colors.teal),
@@ -229,6 +253,10 @@ class EditRecordPageState extends State<EditRecordPage> {
                               }
                               return null;
                             },
+                            onFieldSubmitted: (_) {
+                              FocusScope.of(context).requestFocus(
+                                  _additionalValuesFocusNodes[index]);
+                            },
                           ),
                         ),
                       ),
@@ -238,6 +266,7 @@ class EditRecordPageState extends State<EditRecordPage> {
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             initialValue: value,
+                            focusNode: valueFocusNode,
                             decoration: InputDecoration(
                               labelText: 'Value',
                               labelStyle: const TextStyle(color: Colors.teal),
@@ -262,6 +291,19 @@ class EditRecordPageState extends State<EditRecordPage> {
                               }
                               return null;
                             },
+                            onFieldSubmitted: (_) {
+                              var keyValPairFound = false;
+                              for (var entry
+                                  in _additionalKeysFocusNodes.entries) {
+                                if (entry.key == index) {
+                                  keyValPairFound = true;
+                                } else if (keyValPairFound) {
+                                  FocusScope.of(context)
+                                      .requestFocus(entry.value);
+                                  break;
+                                }
+                              }
+                            },
                           ),
                         ),
                       ),
@@ -271,6 +313,10 @@ class EditRecordPageState extends State<EditRecordPage> {
                         onPressed: () {
                           setState(() {
                             tempAdditionalInfo.remove(index);
+                            _additionalKeysFocusNodes[index]!.dispose();
+                            _additionalKeysFocusNodes.remove(index);
+                            _additionalValuesFocusNodes[index]!.dispose();
+                            _additionalValuesFocusNodes.remove(index);
                           });
                         },
                       ),
