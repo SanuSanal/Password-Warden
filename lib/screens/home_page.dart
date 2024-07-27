@@ -4,6 +4,7 @@ import 'package:password_warden/models/password_record.dart';
 import 'package:password_warden/screens/add_record_page.dart';
 import 'package:password_warden/screens/edit_record_page.dart';
 import 'package:password_warden/screens/app_details_page.dart';
+import 'package:password_warden/screens/no_records_page.dart';
 import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
@@ -291,7 +292,7 @@ class HomePageState extends State<HomePage> {
             ),
           ),
           Expanded(
-            child: _buildListView(),
+            child: records.isEmpty ? const NoRecordsPage() : _buildListView(),
           ),
         ],
       ),
