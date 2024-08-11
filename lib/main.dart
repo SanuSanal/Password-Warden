@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:password_warden/models/password_record.dart';
 import 'package:password_warden/screens/splash_screen_page.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +45,22 @@ void main() async {
     'passwordRecords',
     encryptionCipher: HiveAesCipher(encryptionKeyBytes),
   );
+
+  if (await Permission.storage.isGranted) {
+    // Proceed with file operations
+  } else {
+    // Request the permission
+    PermissionStatus status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      // Proceed with file operations
+    } else if (status.isDenied) {
+      // Handle permission denied
+    } else if (status.isPermanentlyDenied) {
+      // Handle permission permanently denied, may need to redirect to settings
+      openAppSettings();
+    }
+  }
 
   runApp(const MyApp());
 }

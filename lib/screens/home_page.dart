@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:password_warden/models/password_record.dart';
@@ -6,6 +10,8 @@ import 'package:password_warden/screens/edit_record_page.dart';
 import 'package:password_warden/screens/app_details_page.dart';
 import 'package:password_warden/screens/no_records_page.dart';
 import 'package:flutter/services.dart';
+import 'package:password_warden/services/save_utility.dart';
+import 'package:password_warden/widgets/yes_no_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -163,20 +169,10 @@ class HomePageState extends State<HomePage> {
     final confirm = await showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Confirm Delete'),
-          content: const Text('Are you sure you want to delete all records?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Delete'),
-            ),
-          ],
-        );
+        return const YesNoDialog(
+            title: 'Confirm Delete',
+            content: 'Are you sure you want to delete all records?',
+            okBtnText: 'Delete');
       },
     );
 
@@ -188,6 +184,96 @@ class HomePageState extends State<HomePage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('All records deleted')),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportAllRecords() async {
+    final confirm = await showDialog(
+      context: context,
+      builder: (context) {
+        return const YesNoDialog(
+            title: 'Confirm Export',
+            content:
+                'Are you sure you want to export all records to JSON file? \nAnyone can read from file.',
+            okBtnText: 'Export');
+      },
+    );
+
+    if (confirm == true) {
+      var records = passwordBox.values.toList();
+
+      List<Map<String, dynamic>> jsonList =
+          records.map((item) => item.toJson()).toList();
+      String jsonString = jsonEncode(jsonList);
+      bool isSaved = await saveJsonToFile(jsonString);
+
+      setState(() {
+        _applyFilter();
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: isSaved
+                  ? const Text('Export successful')
+                  : const Text('Export failed')),
+        );
+      }
+    }
+  }
+
+  Future<void> _importRecordsFromFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+
+    if (result != null) {
+      try {
+        File file = File(result.files.single.path!);
+        String contents = await file.readAsString();
+        List<dynamic> jsonData = json.decode(contents);
+        List<PasswordRecord> data = jsonData
+            .map<PasswordRecord>((item) => PasswordRecord.fromJson(item))
+            .toList();
+
+        Map<String, dynamic> appNameToKeyMap = {};
+        var keys = passwordBox.keys.toList();
+        var values = passwordBox.values.toList();
+        for (int i = 0; i < values.length; i++) {
+          var passwordRecord = values[i];
+          var key = keys[i];
+          appNameToKeyMap[passwordRecord.applicationName] = key;
+        }
+
+        for (var element in data) {
+          if (appNameToKeyMap.containsKey(element.applicationName)) {
+            Hive.box<PasswordRecord>('passwordRecords')
+                .put(appNameToKeyMap[element.applicationName], element);
+          } else {
+            Hive.box<PasswordRecord>('passwordRecords').add(element);
+          }
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Records imported')),
+          );
+        }
+        setState(() {
+          _applyFilter();
+        });
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Import Failed. Invalid format.')),
+          );
+        }
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Import cancelled')),
         );
       }
     }
@@ -232,6 +318,10 @@ class HomePageState extends State<HomePage> {
             onSelected: (value) {
               if (value == 'Delete All') {
                 _deleteAllRecords();
+              } else if (value == 'Export') {
+                _exportAllRecords();
+              } else if (value == 'Import') {
+                _importRecordsFromFile();
               } else if (value == 'App Details') {
                 Navigator.push(
                   context,
@@ -244,6 +334,14 @@ class HomePageState extends State<HomePage> {
               const PopupMenuItem(
                 value: 'Delete All',
                 child: Text('Delete All Records'),
+              ),
+              const PopupMenuItem(
+                value: 'Export',
+                child: Text('Export to JSON'),
+              ),
+              const PopupMenuItem(
+                value: 'Import',
+                child: Text('Import from JSON'),
               ),
               const PopupMenuItem(
                 value: 'App Details',

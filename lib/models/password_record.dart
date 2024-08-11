@@ -22,4 +22,20 @@ class PasswordRecord extends HiveObject {
     required this.password,
     required this.additionalInfo,
   });
+
+  Map<String, dynamic> toJson() => {
+        'applicationName': applicationName,
+        'username': username,
+        'password': password,
+        'additionalInfo': additionalInfo
+      };
+
+  static fromJson(item) {
+    return PasswordRecord(
+      applicationName: item['applicationName'],
+      username: item['username'],
+      password: item['password'],
+      additionalInfo: Map<String, String>.from(item['additionalInfo']),
+    );
+  }
 }
