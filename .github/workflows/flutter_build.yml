@@ -1,0 +1,47 @@
+name: Build Flutter App
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        platform: [android, ios]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: 'stable'
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Build APK
+      if: matrix.platform == 'android'
+      run: flutter build apk --release
+
+    - name: Build iOS
+      if: matrix.platform == 'ios'
+      run: flutter build ios --release --no-codesign
+
+    - name: Upload Android APK
+      if: matrix.platform == 'android'
+      uses: actions/upload-artifact@v2
+      with:
+        name: app-release.apk
+        path: build/app/outputs/flutter-apk/app-release.apk
+
+    - name: Upload iOS IPA
+      if: matrix.platform == 'ios'
+      uses: actions/upload-artifact@v2
+      with:
+        name: app-release.ipa
+        path: build/ios/ipa/*.ipa
