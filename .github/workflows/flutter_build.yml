@@ -44,33 +44,12 @@ jobs:
         name: app-release.apk
         path: build/app/outputs/flutter-apk/app-release.apk
 
-    - name: Create Release
-      id: create_release
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const release = await github.rest.repos.createRelease({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            tag_name: `v${process.env.GITHUB_RUN_NUMBER}`,
-            name: `Release v${process.env.GITHUB_RUN_NUMBER}`,
-            draft: false,
-            prerelease: false
-          });
-          return release.data.upload_url;
+    - name: Install GitHub CLI
+      run: sudo apt-get install gh
   
-    - name: Upload Release Asset
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const uploadUrl = "${{ steps.create_release.outputs.upload_url }}";
-          const artifact = await github.rest.repos.uploadReleaseAsset({
-            url: uploadUrl,
-            headers: {
-              'content-type': 'application/octet-stream',
-              'content-length': (await fs.promises.stat('build/app/outputs/flutter-apk/app-release.apk')).size,
-            },
-            name: 'app-release.apk',
-            file: fs.createReadStream('build/app/outputs/flutter-apk/app-release.apk')
-          });
-          console.log(`Asset uploaded: ${artifact.data.browser_download_url}`);
+    - name: Create Release
+      run: |
+        gh release create v${{ github.run_number }} \
+        build/app/outputs/flutter-apk/app-release.apk \
+        --title "Release v${{ github.run_number }}" \
+        --notes "Release notes for v${{ github.run_number }}"
