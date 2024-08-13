@@ -43,14 +43,15 @@
 
 Check out the screenshots to see Password Warden in action!
 
-<img src="assets/screenshots/home.jpg" alt="Home Page" width="200"/>
-<img src="assets/screenshots/add-record.jpg" alt="Add Record Page" width="200"/>
-<img src="assets/screenshots/details-popup.jpg" alt="Details Pop-up" width="200"/>
-<img src="assets/screenshots/edit-page.jpg" alt="Edit Record Page" width="200"/>
-<img src="assets/screenshots/menu.jpg" alt="Pop-up Menu" width="200"/>
-<img src="assets/screenshots/about.jpg" alt="About Page" width="200"/>
-<img src="assets/screenshots/dialog-sample.jpg" alt="Confirmation Dialog Page" width="200"/>
-
+<div style="display: flex; gap: 10px;">
+   <img src="assets/screenshots/home.jpg" alt="Home Page" width="200"/>
+   <img src="assets/screenshots/add-record.jpg" alt="Add Record Page" width="200"/>
+   <img src="assets/screenshots/details-popup.jpg" alt="Details Pop-up" width="200"/>
+   <img src="assets/screenshots/edit-page.jpg" alt="Edit Record Page" width="200"/>
+   <img src="assets/screenshots/menu.jpg" alt="Pop-up Menu" width="200"/>
+   <img src="assets/screenshots/about.jpg" alt="About Page" width="200"/>
+   <img src="assets/screenshots/dialog-sample.jpg" alt="Confirmation Dialog Page" width="200"/>
+</div>
 
 ### 📦 Download & Installation
 
