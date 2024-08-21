@@ -46,22 +46,6 @@ void main() async {
     encryptionCipher: HiveAesCipher(encryptionKeyBytes),
   );
 
-  if (await Permission.storage.isGranted) {
-    // Proceed with file operations
-  } else {
-    // Request the permission
-    PermissionStatus status = await Permission.storage.request();
-
-    if (status.isGranted) {
-      // Proceed with file operations
-    } else if (status.isDenied) {
-      // Handle permission denied
-    } else if (status.isPermanentlyDenied) {
-      // Handle permission permanently denied, may need to redirect to settings
-      openAppSettings();
-    }
-  }
-
   runApp(const MyApp());
 }
 

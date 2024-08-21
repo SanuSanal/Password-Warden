@@ -226,7 +226,7 @@ class HomePageState extends State<HomePage> {
   Future<void> _importRecordsFromFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['json'],
+      allowedExtensions: ['txt'],
     );
 
     if (result != null) {
