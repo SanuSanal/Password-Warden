@@ -16,6 +16,7 @@ class AddRecordPageState extends State<AddRecordPage> {
   String password = '';
   Map<int, String> tempAdditionalInfo = {};
   int keyIndex = 0;
+  bool _isPasswordVisible = false;
 
   final _applicationNameFocusNode = FocusNode();
   final _usernameFocusNode = FocusNode();
@@ -39,12 +40,10 @@ class AddRecordPageState extends State<AddRecordPage> {
 
   void _saveRecord() {
     if (_formKey.currentState!.validate()) {
-      // Validate keys in tempAdditionalInfo
       Set<String> keysSet = {};
       for (var entry in tempAdditionalInfo.values) {
         String key = entry.split(':')[0];
         if (keysSet.contains(key)) {
-          // Show error: Duplicate key found
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Duplicate key found: $key')),
           );
@@ -53,7 +52,6 @@ class AddRecordPageState extends State<AddRecordPage> {
         keysSet.add(key);
       }
 
-      // No duplicates, proceed with saving
       Map<String, String> additionalInfo = {};
       for (var entry in tempAdditionalInfo.values) {
         List<String> keyValue = entry.split(':');
@@ -172,8 +170,21 @@ class AddRecordPageState extends State<AddRecordPage> {
                             borderRadius: BorderRadius.circular(10),
                             borderSide: const BorderSide(color: Colors.teal),
                           ),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+                            icon: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.teal,
+                            ),
+                          ),
                         ),
-                        obscureText: true,
+                        obscureText: !_isPasswordVisible,
                         onSaved: (value) => password = value!,
                         validator: (value) {
                           if (value == null || value.isEmpty) {

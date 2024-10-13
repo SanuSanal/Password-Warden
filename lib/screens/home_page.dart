@@ -11,6 +11,7 @@ import 'package:password_warden/screens/app_details_page.dart';
 import 'package:password_warden/screens/no_records_page.dart';
 import 'package:flutter/services.dart';
 import 'package:password_warden/services/save_utility.dart';
+import 'package:password_warden/widgets/password_generator_dialog.dart';
 import 'package:password_warden/widgets/yes_no_dialog.dart';
 
 class HomePage extends StatefulWidget {
@@ -204,10 +205,7 @@ class HomePageState extends State<HomePage> {
     if (confirm == true) {
       var records = passwordBox.values.toList();
 
-      List<Map<String, dynamic>> jsonList =
-          records.map((item) => item.toJson()).toList();
-      String jsonString = jsonEncode(jsonList);
-      bool isSaved = await saveJsonToFile(jsonString);
+      bool isSaved = await generateEncryptedPDF(records, "password");
 
       setState(() {
         _applyFilter();
@@ -337,12 +335,12 @@ class HomePageState extends State<HomePage> {
               ),
               const PopupMenuItem(
                 value: 'Export',
-                child: Text('Export to JSON'),
+                child: Text('Export Data'),
               ),
-              const PopupMenuItem(
-                value: 'Import',
-                child: Text('Import from JSON'),
-              ),
+              // const PopupMenuItem(
+              //   value: 'Import',
+              //   child: Text('Import from JSON'),
+              // ),
               const PopupMenuItem(
                 value: 'App Details',
                 child: Text('App Details'),
@@ -394,16 +392,38 @@ class HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddRecordPage()),
-          );
-          _applyFilter(); // Refresh list after adding a new record
-        },
-        backgroundColor: Colors.teal,
-        child: const Icon(Icons.add),
+      floatingActionButton: Stack(
+        children: [
+          Align(
+            alignment: Alignment.bottomRight,
+            child: FloatingActionButton(
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AddRecordPage()),
+                );
+                _applyFilter();
+              },
+              backgroundColor: Colors.teal,
+              child: const Icon(Icons.add),
+            ),
+          ),
+          Positioned(
+            right: 0,
+            bottom: 60,
+            child: FloatingActionButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const PasswordGeneratorDialog(),
+                );
+              },
+              mini: true,
+              child: const Icon(Icons.vpn_key),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -413,16 +433,14 @@ class HomePageState extends State<HomePage> {
       return '';
     }
 
-    // Split the input string by spaces or underscores
     List<String> words = input.split(RegExp(r'\s+|_'));
 
-    // Capitalize the first word and join with the rest capitalized
     String camelCaseString = words.map((word) {
       if (word.isEmpty) {
         return '';
       }
       if (word.length == 1) {
-        return word.toUpperCase(); // Handles single-character words like 'a'
+        return word.toUpperCase();
       }
       return word.substring(0, 1).toUpperCase() +
           word.substring(1).toLowerCase();

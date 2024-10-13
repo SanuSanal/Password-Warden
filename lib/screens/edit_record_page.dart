@@ -18,6 +18,8 @@ class EditRecordPageState extends State<EditRecordPage> {
   late String password;
   Map<int, String> tempAdditionalInfo = {};
   int keyIndex = 0;
+  bool _isPasswordVisible = false;
+
   final Map<int, FocusNode> _additionalKeysFocusNodes = {};
   final Map<int, FocusNode> _additionalValuesFocusNodes = {};
 
@@ -188,8 +190,21 @@ class EditRecordPageState extends State<EditRecordPage> {
                             borderRadius: BorderRadius.circular(10),
                             borderSide: const BorderSide(color: Colors.teal),
                           ),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+                            icon: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.teal,
+                            ),
+                          ),
                         ),
-                        obscureText: true,
+                        obscureText: !_isPasswordVisible,
                         onSaved: (value) => password = value!,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
